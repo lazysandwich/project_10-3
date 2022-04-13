@@ -24,6 +24,34 @@ String TileMap[H] = {
     "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 }
 
+class ENEMY {
+    public:
+    float dx, dy;
+    FloatRect rect;
+    Sprite sprite;
+    float currentFrame;
+    bool life;
+    void set(Texture &image, int x, int y) {
+        sprite.setTexture(image);
+        rect = FloatRectl(x, y, 16, 16);
+        dx = 0.05;
+        currentFrame = 0;
+        life = true;
+    }
+    void update(float time) {
+        rect.life += dx * time;
+        
+        Collision();
+        currentFrame += time * 0.005;
+        if(currentFrame > 2) 
+            currentFrame -= 2;
+        sprite.setTextureRect(IntRect(18 * int(currentFrame), 0, 16, 16));
+        if(!life)
+            sprite.setTextureRect(IntRect(58, 0, 16, 16));
+        sprite.setPosition(rect.left - offsetX, rect.top - offsetY);
+    }
+}
+
 class PLAYER {
     public:
     float dx, dy;
@@ -80,21 +108,24 @@ class PLAYER {
 }
 
 int main() {
-    RenderWindow window(VideoModo(200, 200), "Test!");
-    CircleShape MyCircle(100.f);
-    MyCircle.setFillColor(Color::Green);
-    Texture t;
-    t.loadFromFile("");
-    float currentFrame = 0;
-    PLAYER p(t);
-    
+    RenderWindow window(VideoModo(400, 250), "Test!");
+    Texture tileSet;
+    tileSet.loadFromFile("");
+    PLAYER p(tileSet);
+    ENEMY enemy;
+    enemy.set(tileSet, 48 * 16, 13 * 16);
+    Sprite tile(tileSet);
+    SoundBuffer buffer;
+    buffer.loadFromFile("Jump.ogg");
     Clock clock;
     
     while(window.isOpen()) {
         float time = clock.getElapsedTime().asMicroseconds();
         clock.restart();
-        time = time / 800;
+        time = time / 500;
         Event event;
+        if(time > 20)
+            time = 20;
         while(window.pollEvent(event)) {
             if(event.type == Event::Closed)
                 window.close();
@@ -110,9 +141,21 @@ int main() {
                 p.dy = - 0.4;
                 p.onGround = false;
             }
+            p.update(time);
+            enemy.update(time);
+            if(p.rect.intersects(enemy.rect)) {
+                if(p.dy > 0) {
+                    enemy.dx = 0;
+                    p.dy = -0.2;
+                    enemy.life = false;
+                }
+                else
+                    p.sprite.setColor(Color::Red);
+            }
         }
-        offsetX = p.rect.left - 600/2;
-        offsetY = p.rect.top - 400/2;
+        if(p.rect.left > 300)
+            offsetX = p.rect.left - 300;
+        offsetY = p.rect.top - 200;
         window.clear(Color::White);
         for(int i = 0; i < H; i++) {
             for(int j = 0; j < W; j++) {

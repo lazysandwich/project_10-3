@@ -117,6 +117,10 @@ int main() {
     Sprite tile(tileSet);
     SoundBuffer buffer;
     buffer.loadFromFile("Jump.ogg");
+    Sound sound(buffer);
+    Music music;
+    music.openFromFile("Theme.ogg");
+    music.play();
     Clock clock;
     
     while(window.isOpen()) {
@@ -138,8 +142,9 @@ int main() {
         }
         if((Keyboard::isKeyPressed(Keyboard::Up))) {
             if(p.onGround) {
-                p.dy = - 0.4;
+                p.dy = -0.27;
                 p.onGround = false;
+                sound.play();
             }
             p.update(time);
             enemy.update(time);
@@ -153,8 +158,8 @@ int main() {
                     p.sprite.setColor(Color::Red);
             }
         }
-        if(p.rect.left > 300)
-            offsetX = p.rect.left - 300;
+        if(p.rect.left > 200)
+            offsetX = p.rect.left - 200;
         offsetY = p.rect.top - 200;
         window.clear(Color::White);
         for(int i = 0; i < H; i++) {

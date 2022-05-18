@@ -39,7 +39,7 @@ float currentFrame;
 
     PLAYER(Texture &image)
    {
-	sprite.setTexture(image);
+	sprite.setTexture(fang.png);
 	rect = FloatRect(7*32,9*32,40,50);
 
 	dx=dy=0.1;
